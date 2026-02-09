@@ -1,79 +1,45 @@
-# Stadium Access Control Android App
+# StaduApp - Control de Acceso en Tiempo Real
 
-This is a Senior Android Engineer technical challenge implementation for real-time stadium access control using WebSockets.
+Solución Android para el reto técnico de gestión de aforo y asignación dinámica de asientos basada en reglas de negocio.
 
-## 🚀 How to Run
+## 🚀 Guía de Inicio Rápido
 
-### 1. **Start the WebSocket Server**
-(Based on PDF instructions)
-1. Ensure Java 11+ is installed.
-2. Run the server JAR (or command provided in PDF):
-   ```bash
-   java -jar server.jar --port=8080
-   ```
-   *(Adjust command based on actual PDF content if different)*
+### 1. Preparar el Servidor
+La aplicación requiere un servidor WebSocket emitiendo eventos.
+- Si tienes el JAR del servidor: `java -jar server.jar --port=8765`
+- La app está configurada por defecto para `ws://192.168.0.170:8765`.
 
-### 2. **Configure the App**
-The WebSocket URL is configured in `StaduApp.kt`.
-If using the Android Emulator, use `ws://10.0.2.2:8080/events`.
-If using a physical device, update with your machine's local IP (e.g., `ws://192.168.1.50:8080/events`).
+### 2. Configuración de Red (Importante)
+- **Emulador**: Usa `10.0.2.2` para referenciar al localhost de tu máquina.
+- **Dispositivo Físico**: Asegúrate de que el móvil y el PC estén en la misma red WiFi y actualiza la IP en `ServiceLocator.kt`.
+- **Cleartext**: La app tiene habilitado `android:usesCleartextTraffic="true"` en el `AndroidManifest.xml` para permitir conexiones `ws://` no cifradas.
 
-### 3. **Run the Android App**
-Open the project in Android Studio Iguana+ or run via command line:
+### 3. Ejecución
+1. Abre el proyecto en Android Studio (Ladybug o superior).
+2. Sincroniza Gradle.
+3. Ejecuta en tu dispositivo: `Shift + F10`.
+
+## 🏗️ Resumen de Arquitectura
+La app utiliza **Clean Architecture** dividida por **features**:
+- **Domain**: Reglas de negocio puras (Multicolor, Blue, Standard).
+- **Data**: Gestión de WebSockets con OkHttp y flujos reactivos.
+- **Presentation**: UI moderna con Jetpack Compose y MVVM.
+
+Consulte [ARCHITECTURE_ES.md](ARCHITECTURE_ES.md) para un detalle profundo.
+
+## 🛡️ Reglas de Asignación
+1. **Multicolor**: Acceso denegado inmediatamente.
+2. **Azul**: Prioridad Sector Norte -> Fallback Bloque C otros sectores.
+3. **Estándar**: Asignación según la puerta de entrada al bloque más cercano (C > B > A).
+4. **Bloqueo 70%**: Los bloques se cierran automáticamente al llegar al 70% de su capacidad.
+
+## 🧪 Verificación
+Ejecute los tests unitarios para validar las reglas de negocio:
 ```bash
-./gradlew installDebug
+./gradlew test
 ```
-The app will launch and automatically attempt to connect.
 
-## 🏗️ Architecture
-
-The app follows Clean Architecture principles with Modularization by Layer (in a single module for simplicity):
-
-- **Domain Layer (`com.domingame.staduapp.domain`)**: 
-  - Pure Kotlin logic.
-  - **Models**: `StadiumState`, `BlockState`, `EntryEvent`.
-  - **Engine**: `StadiumEngine` handles the state machine, concurrency (Mutex), and business rules.
-  - **Strategy**: `AssignmentStrategy` implements the core algorithms (Standard, Blue, Multicolor).
-  
-- **Data Layer (`com.domingame.staduapp.data`)**: 
-  - **WebSocketManager**: Handles OkHttp connection, reconnection, and flow emission.
-  - **Repository**: Maps JSON events to Domain objects and exposes connection state.
-
-- **Presentation Layer (`com.domingame.staduapp.ui`)**: 
-  - **ViewModel**: `MainViewModel` exposes `StateFlow` streams for UI.
-  - **Compose**: Modern UI using Jetpack Compose, Material3, and Navigation.
-  - **Screens**: Dashboard (Map), Metrics (Analytics), Log (History).
-
-## ✅ Implemented Features
-
-- [x] **Real-time WebSocket Connection**: Auto-connect with retry/backoff.
-- [x] **Concurrent Event Processing**: Thread-safe state updates using internal Mutex.
-- [x] **Assignment Algorithms**:
-  - **Standard**: Closest block (C->B->A) in designated Sector. Fallback to Adjacent Sectors.
-  - **Blue Shirt**: Forces North Sector allocation. Fallback to Block C in East/West/South.
-  - **Multicolor**: Blocks access and logs as "Blocked".
-- [x] **Capacity Logic**: Block locks at 70% occupancy (14/20).
-- [x] **Metrics**:
-  - Total Admitted / Refused / Blocked.
-  - Global Average Distance.
-  - Sector-level Average Distances.
-- [x] **UI**:
-  - **Dashboard**: Visual grid of Sectors/Blocks with occupancy indicators.
-  - **Log**: Scrollable list of events with status icons.
-  
-## 🛠️ Tech Stack
-
-- **Language**: Kotlin
-- **UI**: Jetpack Compose (Material3)
-- **Concurrency**: Coroutines, Flow, Mutex, StateFlow
-- **Network**: OkHttp (WebSocket)
-- **Serialization**: Kotlinx Serialization
-- **DI**: Manual Dependency Injection via `StaduApp`
-
-## 🧪 Testing
-
-Unit tests for the domain logic can be found in `src/test/java/.../domain/engine/AssignmentStrategyTest.kt`.
-Run tests via:
-```bash
-./gradlew testDebugUnitTest
-```
+## 🛠️ Troubleshooting
+- **No conecta**: Verifica que el puerto 8765 esté abierto en el firewall de tu PC.
+- **Eventos no aparecen**: Revisa el Logcat filtrando por "StadiumRemote".
+- **Error de compilación**: Asegúrate de usar Java 17 para el proceso de build de Gradle.

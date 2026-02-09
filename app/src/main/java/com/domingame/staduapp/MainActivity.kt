@@ -8,16 +8,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
-import com.domingame.staduapp.ui.MainViewModel
-import com.domingame.staduapp.ui.screens.MainScreen
+import com.domingame.staduapp.core.di.ServiceLocator
+import com.domingame.staduapp.feature.stadium.presentation.MainViewModel
+import com.domingame.staduapp.feature.stadium.presentation.StadiumScreen
 import com.domingame.staduapp.ui.theme.StaduAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        val app = application as StaduApp
-        val viewModel = ViewModelProvider(this, app.viewModelFactory)[MainViewModel::class.java]
+        val viewModel = ViewModelProvider(this, ServiceLocator.mainViewModelFactory)[MainViewModel::class.java]
         
         setContent {
             StaduAppTheme {
@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen(viewModel)
+                    StadiumScreen(viewModel)
                 }
             }
         }

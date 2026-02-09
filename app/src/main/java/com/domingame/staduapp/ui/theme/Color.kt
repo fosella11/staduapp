@@ -15,3 +15,8 @@ val WarningOrange = Color(0xFFFFA726)
 val OccupiedGreen = Color(0xFF66BB6A)
 val NormalGrey = Color(0xFFEEEEEE)
 val TextDark = Color(0xFF1c1b1f)
+
+// Connection status colors
+val ConnectedGreen = Color(0xFF4CAF50)
+val DisconnectedRed = Color(0xFFFF5252)
+val ErrorColor = Color(0xFFE57373)
