@@ -1,13 +1,14 @@
 package com.domingame.staduapp.feature.stadium.presentation.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.domingame.staduapp.feature.stadium.domain.model.AssignmentResult
@@ -22,6 +24,7 @@ import com.domingame.staduapp.feature.stadium.domain.model.ProcessedEvent
 import com.domingame.staduapp.ui.theme.BlockedRed
 import com.domingame.staduapp.ui.theme.OccupiedGreen
 import com.domingame.staduapp.ui.theme.WarningOrange
+import com.domingame.staduapp.ui.theme.PurpleMain
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -29,101 +32,144 @@ import java.util.Locale
 @Composable
 fun LogEventItem(processed: ProcessedEvent) {
     val result = processed.result
+    val time = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(processed.timestamp))
     
-    val (statusColor, statusBgColor, statusText, statusIcon) = when (result) {
-        is AssignmentResult.Success -> {
-            val assignmentText = "Asignado: ${result.sector.name} - Bloque ${result.block}"
-            Tuple4(OccupiedGreen, OccupiedGreen.copy(alpha = 0.15f), assignmentText, Icons.Filled.CheckCircle)
-        }
-        is AssignmentResult.Rejected -> {
-            Tuple4(WarningOrange, WarningOrange.copy(alpha = 0.15f), "Rechazado", Icons.Filled.Close)
-        }
-        is AssignmentResult.Blocked -> {
-            Tuple4(BlockedRed, BlockedRed.copy(alpha = 0.15f), "Acceso bloqueado", Icons.Filled.Lock)
-        }
-    }
-
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = Color.White
         ),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFEEEEEE))
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(16.dp)
         ) {
-            // Status Icon
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(statusBgColor),
-                contentAlignment = Alignment.Center
+            // Top Row: Status Icon, Event ID, Gate, Time
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = statusIcon,
+                    imageVector = if (result is AssignmentResult.Blocked) Icons.Default.Warning else Icons.Default.CheckCircle,
                     contentDescription = null,
-                    tint = statusColor,
+                    tint = if (result is AssignmentResult.Blocked) BlockedRed else OccupiedGreen,
                     modifier = Modifier.size(20.dp)
+                )
+                
+                Spacer(modifier = Modifier.width(8.dp))
+                
+                Text(
+                    text = "event-${processed.id.take(4)}",
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.weight(1f)
+                )
+                
+                // Gate Capsule
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFF5F5F5))
+                        .border(1.dp, Color(0xFFEEEEEE), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 10.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = "Puerta ${processed.originalEvent.gate}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.Gray
+                    )
+                }
+                
+                Spacer(modifier = Modifier.width(12.dp))
+                
+                Text(
+                    text = time,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.Gray
                 )
             }
             
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             
-            // Event Details
-            Column(Modifier.weight(1f)) {
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "event ${processed.id.take(4)}",
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    )
-                    Text(
-                        text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(processed.timestamp)),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+            // Middle Row: Ticket Color Chip and Status Text
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TicketColorChip(processed.originalEvent.shirtColor)
                 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.width(8.dp))
                 
-                // Status Badge
                 Text(
-                    text = statusText,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 13.sp
-                    ),
-                    color = statusColor,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(statusBgColor)
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                    text = when (result) {
+                        is AssignmentResult.Success -> "Asignado"
+                        is AssignmentResult.Blocked -> "Bloqueado"
+                        else -> "Rechazado"
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
                 )
-                
-                // Additional Info
-                if (result is AssignmentResult.Success) {
-                    Spacer(modifier = Modifier.height(4.dp))
+            }
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            // Bottom Row: Details or Warning
+            when (result) {
+                is AssignmentResult.Success -> {
                     Text(
-                        text = "Puerta ${processed.originalEvent.gate} • ${processed.originalEvent.shirtColor}",
+                        text = "Sector: ${result.sector.name} | Bloque: ${result.block}",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = Color.Gray,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
+                is AssignmentResult.Blocked -> {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = null,
+                            tint = WarningOrange,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Acceso bloqueado",
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium),
+                            color = BlockedRed
+                        )
+                    }
+                }
+                else -> {}
             }
         }
     }
 }
 
-// Helper data class for tuple
-private data class Tuple4<A, B, C, D>(val a: A, val b: B, val c: C, val d: D)
+@Composable
+fun TicketColorChip(colorLabel: String) {
+    val bgColor = when (colorLabel.uppercase()) {
+        "BLACK" -> Color.Black
+        "MULTICOLOR" -> PurpleMain // Or a gradient if possible, but PurpleMain is a good fallback
+        "RED" -> BlockedRed
+        "YELLOW" -> WarningOrange
+        else -> Color.Gray
+    }
+    
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(bgColor)
+            .padding(horizontal = 12.dp, vertical = 4.dp)
+    ) {
+        Text(
+            text = colorLabel.uppercase(),
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.Bold,
+                fontSize = 10.sp
+            ),
+            color = Color.White
+        )
+    }
+}

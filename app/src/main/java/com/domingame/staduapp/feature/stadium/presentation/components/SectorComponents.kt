@@ -1,6 +1,7 @@
 package com.domingame.staduapp.feature.stadium.presentation.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -10,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.domingame.staduapp.feature.stadium.domain.model.BlockName
@@ -17,97 +19,126 @@ import com.domingame.staduapp.feature.stadium.domain.model.BlockState
 import com.domingame.staduapp.feature.stadium.domain.model.SectorState
 import com.domingame.staduapp.ui.theme.BlockedRed
 import com.domingame.staduapp.ui.theme.OccupiedGreen
+import com.domingame.staduapp.ui.theme.PurpleMain
 import com.domingame.staduapp.ui.theme.WarningOrange
 
 @Composable
-fun SectorCard(sector: SectorState?) {
+fun ResponsiveSectorGrid(sector: SectorState?) {
     if (sector == null) return
     
-    Card(
+    // Single row with 3 blocks: A, B, C
+    Row(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-        ),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            // Blocks Grid - 3 columns (A, B, C)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                listOf(BlockName.A, BlockName.B, BlockName.C).forEach { blockName ->
-                    BlockItem(sector.blocks[blockName])
-                }
-            }
-        }
+        GrowingBlockItem(
+            block = sector.blocks[BlockName.A],
+            blockLabel = "A",
+            modifier = Modifier.weight(1f)
+        )
+        GrowingBlockItem(
+            block = sector.blocks[BlockName.B],
+            blockLabel = "B",
+            modifier = Modifier.weight(1f)
+        )
+        GrowingBlockItem(
+            block = sector.blocks[BlockName.C],
+            blockLabel = "C",
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
 @Composable
-fun BlockItem(block: BlockState?) {
-    if (block == null) return
-    
-    val backgroundColor = when {
-        block.isBlocked -> BlockedRed.copy(alpha = 0.15f)
-        block.occupancyPercentage >= 0.5f -> WarningOrange.copy(alpha = 0.15f)
-        block.occupants > 0 -> OccupiedGreen.copy(alpha = 0.15f)
-        else -> MaterialTheme.colorScheme.surface
+fun GrowingBlockItem(
+    block: BlockState?,
+    blockLabel: String,
+    modifier: Modifier = Modifier
+) {
+    if (block == null) {
+        Box(
+            modifier = modifier
+                .aspectRatio(1f)
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color(0xFFF1EFF3))
+        )
+        return
     }
     
-    val textColor = when {
+    val fillPercentage = block.occupancyPercentage.coerceIn(0f, 1f)
+    
+    val color = when {
         block.isBlocked -> BlockedRed
-        block.occupancyPercentage >= 0.5f -> WarningOrange
-        else -> MaterialTheme.colorScheme.onSurface
+        fillPercentage >= 0.5f -> WarningOrange
+        else -> PurpleMain
     }
     
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .width(80.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(backgroundColor)
-            .padding(vertical = 12.dp, horizontal = 8.dp)
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Block Label
+        Box(
+            modifier = Modifier
+                .aspectRatio(1f)
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color(0xFFF1EFF3)),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            // Fill background (grows from bottom)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(fillPercentage)
+                    .background(color.copy(alpha = 0.6f))
+            )
+            
+            // Content
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                if (block.isBlocked) {
+                    Text(
+                        text = "70%\nBLOQUEADO",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 8.sp,
+                            lineHeight = 10.sp,
+                            textAlign = TextAlign.Center
+                        ),
+                        color = Color.White,
+                        modifier = Modifier
+                            .background(BlockedRed, RoundedCornerShape(4.dp))
+                            .padding(4.dp)
+                    )
+                } else if (block.occupants > 0) {
+                   Text(
+                        text = "${block.occupants}",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                        color = if (fillPercentage > 0.4f) Color.White else Color.Black
+                    )
+                }
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(4.dp))
+        
         Text(
-            text = block.name.name,
-            style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.Medium,
-                fontSize = 11.sp
-            ),
+            text = blockLabel,
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        // Occupancy Count
-        Text(
-            text = "${block.occupants}",
-            style = MaterialTheme.typography.headlineSmall.copy(
-                fontWeight = FontWeight.Bold
-            ),
-            color = textColor
-        )
-        
-        // Status Badge
-        if (block.isBlocked) {
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "70% BLOQUEADO",
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                color = BlockedRed,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(BlockedRed.copy(alpha = 0.2f))
-                    .padding(horizontal = 6.dp, vertical = 2.dp)
-            )
-        }
     }
+}
+
+// Keep old components for backward compatibility
+@Composable
+fun SectorCard(sector: SectorState?) {
+    ResponsiveSectorGrid(sector)
+}
+
+@Composable
+fun BlockItem(block: BlockState?) {
+    // Deprecated - use GrowingBlockItem instead
 }

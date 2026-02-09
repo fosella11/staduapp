@@ -15,7 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.domingame.staduapp.feature.stadium.domain.model.SectorName
-import com.domingame.staduapp.feature.stadium.presentation.components.SectorCard
+import com.domingame.staduapp.feature.stadium.presentation.components.ResponsiveSectorGrid
 import com.domingame.staduapp.feature.stadium.presentation.model.StadiumUiState
 
 @Composable
@@ -30,80 +30,96 @@ fun DashboardScreen(state: StadiumUiState) {
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 20.dp, vertical = 16.dp)
+            .padding(horizontal = 16.dp, vertical = 16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        // Header - Capacidad Global
+        // Capacidad Global Progress
         Text(
             text = "Capacidad global ($totalAdmitted/$totalCapacity)",
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         
-        // Progress Bar
         LinearProgressIndicator(
             progress = { globalPercentage },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(12.dp)
-                .clip(RoundedCornerShape(6.dp)),
+                .height(10.dp)
+                .clip(RoundedCornerShape(5.dp)),
             color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+            trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
         )
         
         Spacer(modifier = Modifier.height(24.dp))
         
-        // Sector Grid Title
         Text(
             text = "Capacidad global",
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-            modifier = Modifier.padding(bottom = 12.dp)
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+            modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        // Stadium Layout - Norte
-        Text(
-            text = "Norte",
-            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
-            modifier = Modifier.padding(bottom = 8.dp)
+        // Groups of sectors as shown in Figma
+        // Norte | Sur
+        SectorPair(
+            label1 = "Norte",
+            sector1 = state.stadiumState.sectors[SectorName.NORTH],
+            label2 = "Sur",
+            sector2 = state.stadiumState.sectors[SectorName.SOUTH]
         )
-        SectorCard(state.stadiumState.sectors[SectorName.NORTH])
         
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-        // Este y Oeste
+        // Este | Oeste
+        SectorPair(
+            label1 = "Este",
+            sector1 = state.stadiumState.sectors[SectorName.EAST],
+            label2 = "Oeste",
+            sector2 = state.stadiumState.sectors[SectorName.WEST]
+        )
+        
+        Spacer(modifier = Modifier.height(80.dp))
+    }
+}
+
+@Composable
+fun SectorPair(
+    label1: String,
+    sector1: com.domingame.staduapp.feature.stadium.domain.model.SectorState?,
+    label2: String,
+    sector2: com.domingame.staduapp.feature.stadium.domain.model.SectorState?
+) {
+    Column {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFFF3E5F5))
+                .padding(horizontal = 12.dp, vertical = 6.dp)
         ) {
-            Column(Modifier.weight(1f)) {
-                Text(
-                    text = "Este",
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                SectorCard(state.stadiumState.sectors[SectorName.EAST])
-            }
-            Column(Modifier.weight(1f)) {
-                Text(
-                    text = "Oeste",
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                SectorCard(state.stadiumState.sectors[SectorName.WEST])
-            }
+            Text(
+                text = label1,
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+            )
+            Text(
+                text = label2,
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+            )
         }
         
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Sur
-        Text(
-            text = "Sur",
-            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        SectorCard(state.stadiumState.sectors[SectorName.SOUTH])
+        Spacer(modifier = Modifier.height(8.dp))
         
-        Spacer(modifier = Modifier.height(80.dp)) // Bottom padding for nav bar
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Box(Modifier.weight(1f)) {
+                ResponsiveSectorGrid(sector1)
+            }
+            Box(Modifier.weight(1f)) {
+                ResponsiveSectorGrid(sector2)
+            }
+        }
     }
 }
