@@ -26,7 +26,11 @@ Este documento detalla las decisiones arquitectónicas tomadas durante el desarr
 **Decisión**: No usar Dagger/Hilt en esta fase inicial.
 - **Razón**: El alcance del reto no justifica la complejidad de configuración de Hilt (KSP, anotaciones). Un `ServiceLocator` sencillo en el paquete `core` es suficiente para desacoplar componentes y facilitar tests.
 
-## 6. Métricas en la UI
-**Decisión**: Cálculo de métricas por sector delegado temporalmente en la capa de presentación (Gap P1).
-- **Razón**: Prioridad en terminar la visualización funcional. 
-- **Plan de mejora**: Mover este cálculo al `StadiumEngine` del dominio para asegurar que la UI sea puramente "dump" (tonta).
+## 6. Métricas y UI
+**Decisión**: Cálculo de métricas centralizado en `StadiumEngine`.
+- **Razón**: Asegura que el Dashboard, Metrics y Log muestren datos consistentes procesados por la misma verdad de negocio.
+
+## 7. Diseño de Interfaz (UX)
+**Decisión**: Implementación de bloques de ocupación proporcional ("Growing Blocks").
+- **Razón**: A diferencia de una barra de progreso estática, el crecimiento vertical dentro de un bloque cuadrado permite una visualización más intuitiva del aforo físico por área.
+- **Jerarquía Visual**: Uso de una paleta de colores Lavanda/Púrpura para elementos estructurales y colores semánticos (Verde/Naranja/Rojo) para alertas de aforo, cumpliendo con los estándares de diseño moderno presentados en Figma.

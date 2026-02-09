@@ -1,6 +1,7 @@
 package com.domingame.staduapp.feature.stadium.presentation
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -20,15 +21,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -52,7 +48,7 @@ fun StadiumScreen(viewModel: MainViewModel) {
     val navController = rememberNavController()
     val stadiumUiState by viewModel.stadiumUiState.collectAsState()
     val connectionUiState by viewModel.connectionUiState.collectAsState()
-    
+
     // Lifecycle-aware connection management
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
@@ -72,14 +68,14 @@ fun StadiumScreen(viewModel: MainViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Text(
                         "Stadium Access Control",
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
-                    ) 
+                    )
                 },
                 actions = {
                     ConnectionStatusIndicator(connectionUiState.state)
@@ -91,13 +87,14 @@ fun StadiumScreen(viewModel: MainViewModel) {
         },
         bottomBar = {
             NavigationBar {
-                val currentRoute = navController.currentBackStackEntryFlow.collectAsState(initial = null).value?.destination?.route
-                
+                val currentRoute =
+                    navController.currentBackStackEntryFlow.collectAsState(initial = null).value?.destination?.route
+
                 NavigationBarItem(
                     icon = { Icon(Icons.Filled.Home, contentDescription = "Dashboard") },
-                    label = { Text("Dashboard") },
+                    label = { Text("Mapa") },
                     selected = currentRoute == "dashboard",
-                    onClick = { 
+                    onClick = {
                         navController.navigate("dashboard") {
                             popUpTo("dashboard") { saveState = true }
                             launchSingleTop = true
@@ -107,9 +104,9 @@ fun StadiumScreen(viewModel: MainViewModel) {
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Filled.Info, contentDescription = "Metrics") },
-                    label = { Text("Metrics") },
+                    label = { Text("Metricas") },
                     selected = currentRoute == "metrics",
-                    onClick = { 
+                    onClick = {
                         navController.navigate("metrics") {
                             popUpTo("dashboard") { saveState = true }
                             launchSingleTop = true
@@ -119,9 +116,9 @@ fun StadiumScreen(viewModel: MainViewModel) {
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Log") },
-                    label = { Text("Log") },
+                    label = { Text("Registros") },
                     selected = currentRoute == "log",
-                    onClick = { 
+                    onClick = {
                         navController.navigate("log") {
                             popUpTo("dashboard") { saveState = true }
                             launchSingleTop = true
@@ -156,20 +153,28 @@ fun ConnectionStatusIndicator(state: ConnectionState) {
         ConnectionState.CONNECTING -> WarningOrange
         ConnectionState.ERROR -> ErrorColor
     }
-    
+
     Box(
         modifier = Modifier.padding(end = 16.dp),
         contentAlignment = Alignment.Center
     ) {
         if (state == ConnectionState.CONNECTING) {
-             CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = color)
+            CircularProgressIndicator(
+                modifier = Modifier.size(16.dp),
+                strokeWidth = 2.dp,
+                color = color
+            )
         } else {
-             Icon(
-                 imageVector = androidx.compose.material.icons.Icons.Default.Info, // Or a dot icon
-                 contentDescription = state.name,
-                 tint = color,
-                 modifier = Modifier.size(24.dp)
-             )
+            Row {
+                //Text("") TODO : Agregar estados para conectado y probando
+                Icon(
+                    imageVector = Icons.Default.Info, // Or a dot icon
+                    contentDescription = state.name,
+                    tint = color,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
         }
     }
 }

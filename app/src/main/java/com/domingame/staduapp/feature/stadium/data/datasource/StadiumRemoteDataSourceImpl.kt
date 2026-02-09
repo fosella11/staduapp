@@ -23,11 +23,11 @@ class StadiumRemoteDataSourceImpl(
 
     private val _connectionState = MutableStateFlow(ConnectionState.DISCONNECTED)
     private val _entryEvents = MutableSharedFlow<EntryEvent>(
-        replay = 0, 
-        extraBufferCapacity = 64, 
+        replay = 0,
+        extraBufferCapacity = 64,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
-    
+
     private var webSocket: WebSocket? = null
 
     override fun observeEntryEvents(): Flow<EntryEvent> = _entryEvents.asSharedFlow()
@@ -36,11 +36,12 @@ class StadiumRemoteDataSourceImpl(
 
     override suspend fun connect(url: String) {
         // If already connected or connecting, do nothing
-        if (_connectionState.value == ConnectionState.CONNECTED || 
-            _connectionState.value == ConnectionState.CONNECTING) return
+        if (_connectionState.value == ConnectionState.CONNECTED ||
+            _connectionState.value == ConnectionState.CONNECTING
+        ) return
 
         _connectionState.value = ConnectionState.CONNECTING
-        
+
         try {
             val request = Request.Builder().url(url).build()
             webSocket = client.newWebSocket(request, object : WebSocketListener() {

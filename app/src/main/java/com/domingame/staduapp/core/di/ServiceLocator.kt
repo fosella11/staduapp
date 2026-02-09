@@ -5,7 +5,12 @@ import com.domingame.staduapp.feature.stadium.data.datasource.StadiumRemoteDataS
 import com.domingame.staduapp.feature.stadium.data.repository.StadiumRepositoryImpl
 import com.domingame.staduapp.feature.stadium.domain.engine.StadiumEngine
 import com.domingame.staduapp.feature.stadium.domain.repository.StadiumRepository
-import com.domingame.staduapp.feature.stadium.domain.usecase.*
+import com.domingame.staduapp.feature.stadium.domain.usecase.ConnectToStadiumUseCase
+import com.domingame.staduapp.feature.stadium.domain.usecase.DisconnectFromStadiumUseCase
+import com.domingame.staduapp.feature.stadium.domain.usecase.ObserveConnectionStateUseCase
+import com.domingame.staduapp.feature.stadium.domain.usecase.ObserveEntryEventsUseCase
+import com.domingame.staduapp.feature.stadium.domain.usecase.ObserveStadiumStateUseCase
+import com.domingame.staduapp.feature.stadium.domain.usecase.ProcessEntryEventUseCase
 import com.domingame.staduapp.feature.stadium.presentation.MainViewModel
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
@@ -15,11 +20,11 @@ object ServiceLocator {
 
     private const val WS_URL = "ws://192.168.0.170:8765" // Should be configurable
 
-    private val json: Json by lazy { 
-        Json { 
-            ignoreUnknownKeys = true 
-            isLenient = true 
-        } 
+    private val json: Json by lazy {
+        Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+        }
     }
 
     private val okHttpClient: OkHttpClient by lazy {
@@ -56,11 +61,11 @@ object ServiceLocator {
     private val processEntryEventUseCase: ProcessEntryEventUseCase by lazy {
         ProcessEntryEventUseCase(stadiumEngine)
     }
-    
+
     private val connectToStadiumUseCase: ConnectToStadiumUseCase by lazy {
         ConnectToStadiumUseCase(stadiumRepository)
     }
-    
+
     private val disconnectFromStadiumUseCase: DisconnectFromStadiumUseCase by lazy {
         DisconnectFromStadiumUseCase(stadiumRepository)
     }

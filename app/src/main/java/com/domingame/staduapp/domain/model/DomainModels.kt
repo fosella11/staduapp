@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 
 enum class SectorName { NORTH, SOUTH, EAST, WEST }
 enum class BlockName { A, B, C }
-enum class ShirtColor { BLUE, RED, GREEN, YELLOW, BLACK, MULTICOLOR, OTHER }
 
 @Serializable
 data class EntryEvent(
@@ -21,19 +20,13 @@ data class BlockState(
     val assignmentCount: Int = 0,
     val isBlocked: Boolean = false // True if occupants >= 70% capacity
 ) {
-    val occupancyPercentage: Float get() = if (capacity > 0) occupants.toFloat() / capacity else 0f
     val isFull: Boolean get() = occupants >= capacity
-    val averageDistance: Float get() = if (assignmentCount > 0) accumulatedDistance.toFloat() / assignmentCount else 0f
 }
 
 data class SectorState(
     val name: SectorName,
     val blocks: Map<BlockName, BlockState>
-) {
-    val totalOccupants: Int get() = blocks.values.sumOf { it.occupants }
-    val totalCapacity: Int get() = blocks.values.sumOf { it.capacity }
-    val occupancyPercentage: Float get() = if (totalCapacity > 0) totalOccupants.toFloat() / totalCapacity else 0f
-}
+)
 
 data class GlobalMetrics(
     val totalAdmitted: Int = 0,
@@ -48,7 +41,9 @@ data class StadiumState(
 )
 
 sealed interface AssignmentResult {
-    data class Success(val sector: SectorName, val block: BlockName, val distance: Int) : AssignmentResult
+    data class Success(val sector: SectorName, val block: BlockName, val distance: Int) :
+        AssignmentResult
+
     data class Rejected(val reason: String) : AssignmentResult // Capacity exceeded
     data class Blocked(val reason: String) : AssignmentResult // Multicolor or security block
 }

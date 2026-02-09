@@ -7,11 +7,11 @@ import com.domingame.staduapp.feature.stadium.domain.repository.StadiumRepositor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.SupervisorJob
 import kotlin.math.min
 import kotlin.math.pow
 
@@ -22,7 +22,7 @@ class StadiumRepositoryImpl(
 ) : StadiumRepository {
 
     private var connectionJob: Job? = null
-    
+
     // Backoff configuration
     private val initialBackoff = 1000L
     private val maxBackoff = 30000L
@@ -30,36 +30,39 @@ class StadiumRepositoryImpl(
 
     override fun entryEvents(): Flow<EntryEvent> = remoteDataSource.observeEntryEvents()
 
-    override fun connectionState(): Flow<ConnectionState> = remoteDataSource.observeConnectionState()
+    override fun connectionState(): Flow<ConnectionState> =
+        remoteDataSource.observeConnectionState()
 
     override suspend fun connect() {
         if (connectionJob?.isActive == true) return
-        
+
         connectionJob = externalScope.launch {
             // Initial connect attempt
             remoteDataSource.connect(wsUrl)
-            
+
             var retryAttempt = 0
-            
+
             // Monitor state to trigger reconnections
             remoteDataSource.observeConnectionState().collectLatest { state ->
                 when (state) {
                     ConnectionState.CONNECTED -> {
                         retryAttempt = 0
                     }
+
                     ConnectionState.ERROR, ConnectionState.DISCONNECTED -> {
                         // Only retry if we haven't explicitly disconnected (i.e. connectionJob is active)
                         // But here inside launch, we are active.
                         // Wait, if disconnect() cancels this job, then we won't reach here?
                         // disconnect() cancels connectionJob. So this block shouldn't run if user disconnected.
-                        
+
                         val backoff = (initialBackoff * backoffFactor.pow(retryAttempt)).toLong()
                         val delayTime = min(backoff, maxBackoff)
-                        
+
                         delay(delayTime)
                         remoteDataSource.connect(wsUrl)
                         retryAttempt++
                     }
+
                     else -> {} // CONNECTING, etc.
                 }
             }

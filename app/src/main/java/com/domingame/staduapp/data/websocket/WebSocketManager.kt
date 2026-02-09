@@ -4,7 +4,11 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import okhttp3.*
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import okhttp3.WebSocket
+import okhttp3.WebSocketListener
 
 class WebSocketManager(
     private val client: OkHttpClient,
@@ -33,8 +37,8 @@ class WebSocketManager(
         }
 
         val ws = client.newWebSocket(request, listener)
-        awaitClose { 
-            ws.cancel() 
+        awaitClose {
+            ws.cancel()
         }
     }
 }

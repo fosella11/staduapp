@@ -1,15 +1,27 @@
 package com.domingame.staduapp.feature.stadium.presentation.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,10 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.domingame.staduapp.feature.stadium.presentation.components.MetricCard
 import com.domingame.staduapp.feature.stadium.presentation.model.StadiumUiState
-import com.domingame.staduapp.ui.theme.BlockedRed
 import com.domingame.staduapp.ui.theme.OccupiedGreen
 
 @Composable
@@ -48,7 +57,7 @@ fun MetricsScreen(state: StadiumUiState) {
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             MetricCardWithIcon(
-                title = "Real Procesados",
+                title = "Total Procesados",
                 value = "${metrics.totalAdmitted + metrics.totalRefused + metrics.totalBlocked}",
                 icon = Icons.Default.CheckCircle,
                 iconTint = MaterialTheme.colorScheme.primary,
@@ -62,16 +71,16 @@ fun MetricsScreen(state: StadiumUiState) {
                 modifier = Modifier.weight(1f)
             )
         }
-        
+
         Spacer(modifier = Modifier.height(12.dp))
-        
+
         // Second Row
         Row(
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             MetricCardWithIcon(
-                title = "Rechazados",
+                title = "Bloqueados",
                 value = "${metrics.totalRefused}",
                 icon = Icons.Default.Close,
                 iconTint = MaterialTheme.colorScheme.error,
@@ -87,14 +96,14 @@ fun MetricsScreen(state: StadiumUiState) {
         }
 
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         // Distance Section
         Text(
             text = "Distancia media global",
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
             modifier = Modifier.padding(bottom = 12.dp)
         )
-        
+
         // Distance Bars
         state.stadiumState.sectors.values.sortedBy { it.name.name }.forEach { sector ->
             val totalDist = sector.blocks.values.sumOf { it.accumulatedDistance }
@@ -102,7 +111,7 @@ fun MetricsScreen(state: StadiumUiState) {
             val avg = if (totalCount > 0) totalDist.toFloat() / totalCount else 0f
             val maxDistance = 100f // Assumption for visualization
             val progress = (avg / maxDistance).coerceIn(0f, 1f)
-            
+
             DistanceBar(
                 sectorName = sector.name.name,
                 distance = avg,
@@ -111,7 +120,7 @@ fun MetricsScreen(state: StadiumUiState) {
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
-        
+
         Spacer(modifier = Modifier.height(80.dp))
     }
 }

@@ -1,10 +1,20 @@
 package com.domingame.staduapp.feature.stadium.presentation.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,14 +28,13 @@ import com.domingame.staduapp.feature.stadium.domain.model.BlockName
 import com.domingame.staduapp.feature.stadium.domain.model.BlockState
 import com.domingame.staduapp.feature.stadium.domain.model.SectorState
 import com.domingame.staduapp.ui.theme.BlockedRed
-import com.domingame.staduapp.ui.theme.OccupiedGreen
 import com.domingame.staduapp.ui.theme.PurpleMain
 import com.domingame.staduapp.ui.theme.WarningOrange
 
 @Composable
 fun ResponsiveSectorGrid(sector: SectorState?) {
     if (sector == null) return
-    
+
     // Single row with 3 blocks: A, B, C
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -64,15 +73,15 @@ fun GrowingBlockItem(
         )
         return
     }
-    
+
     val fillPercentage = block.occupancyPercentage.coerceIn(0f, 1f)
-    
+
     val color = when {
         block.isBlocked -> BlockedRed
         fillPercentage >= 0.5f -> WarningOrange
         else -> PurpleMain
     }
-    
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -91,7 +100,7 @@ fun GrowingBlockItem(
                     .fillMaxHeight(fillPercentage)
                     .background(color.copy(alpha = 0.6f))
             )
-            
+
             // Content
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -113,7 +122,7 @@ fun GrowingBlockItem(
                             .padding(4.dp)
                     )
                 } else if (block.occupants > 0) {
-                   Text(
+                    Text(
                         text = "${block.occupants}",
                         style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                         color = if (fillPercentage > 0.4f) Color.White else Color.Black
@@ -121,9 +130,9 @@ fun GrowingBlockItem(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(4.dp))
-        
+
         Text(
             text = blockLabel,
             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),

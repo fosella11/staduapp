@@ -1,7 +1,15 @@
 package com.domingame.staduapp.feature.stadium.domain.engine
 
 import com.domingame.staduapp.feature.stadium.domain.StaduConfig
-import com.domingame.staduapp.feature.stadium.domain.model.*
+import com.domingame.staduapp.feature.stadium.domain.model.AssignmentResult
+import com.domingame.staduapp.feature.stadium.domain.model.BlockName
+import com.domingame.staduapp.feature.stadium.domain.model.BlockState
+import com.domingame.staduapp.feature.stadium.domain.model.EntryEvent
+import com.domingame.staduapp.feature.stadium.domain.model.GlobalMetrics
+import com.domingame.staduapp.feature.stadium.domain.model.ProcessedEvent
+import com.domingame.staduapp.feature.stadium.domain.model.SectorName
+import com.domingame.staduapp.feature.stadium.domain.model.SectorState
+import com.domingame.staduapp.feature.stadium.domain.model.StadiumState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,17 +28,17 @@ class StadiumEngine {
     suspend fun processEvent(event: EntryEvent): ProcessedEvent {
         return mutex.withLock {
             val currentState = _stadiumState.value
-            
+
             // Calculate assignment based on current state
             val result = AssignmentStrategy.determineAssignment(currentState, event)
 
             // Calculate new immutable state
             val newState = applyResult(currentState, result)
-            
+
             // Atomically update state
             _stadiumState.value = newState
-            
-            ProcessedEvent(UUID.randomUUID().toString(), event, result) 
+
+            ProcessedEvent(UUID.randomUUID().toString(), event, result)
         }
     }
 
@@ -41,9 +49,11 @@ class StadiumEngine {
                 is AssignmentResult.Blocked -> currentState.metrics.copy(
                     totalBlocked = currentState.metrics.totalBlocked + 1
                 )
+
                 is AssignmentResult.Rejected -> currentState.metrics.copy(
                     totalRefused = currentState.metrics.totalRefused + 1
                 )
+
                 else -> currentState.metrics // Should not happen given logic
             }
             return currentState.copy(metrics = newMetrics)
@@ -73,7 +83,7 @@ class StadiumEngine {
         // Update Global Metrics incrementally
         val oldTotalAdmitted = currentState.metrics.totalAdmitted
         val oldGlobalAvg = currentState.metrics.averageDistanceGlobal
-        
+
         // Avoid division by zero
         val oldTotalDist = oldGlobalAvg * oldTotalAdmitted
         val newTotalDist = oldTotalDist + result.distance

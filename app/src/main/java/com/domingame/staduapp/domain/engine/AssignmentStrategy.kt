@@ -1,7 +1,13 @@
 package com.domingame.staduapp.domain.engine
 
 import com.domingame.staduapp.domain.StaduConfig
-import com.domingame.staduapp.domain.model.*
+import com.domingame.staduapp.domain.model.AssignmentResult
+import com.domingame.staduapp.domain.model.BlockName
+import com.domingame.staduapp.domain.model.BlockState
+import com.domingame.staduapp.domain.model.EntryEvent
+import com.domingame.staduapp.domain.model.SectorName
+import com.domingame.staduapp.domain.model.SectorState
+import com.domingame.staduapp.domain.model.StadiumState
 
 object AssignmentStrategy {
 
@@ -25,9 +31,9 @@ object AssignmentStrategy {
 
     private fun assignBlueShirt(state: StadiumState): AssignmentResult {
         // Force North
-        val northSector = state.sectors[SectorName.NORTH] 
+        val northSector = state.sectors[SectorName.NORTH]
             ?: return AssignmentResult.Rejected("Sector North not found")
-        
+
         // Find best block in North
         // Rule: "al bloque abierto más cercano dentro de ese sector" -> Standard priority C->B->A
         val northBlock = findBestBlockInSector(northSector)
@@ -41,38 +47,39 @@ object AssignmentStrategy {
         // Order: Adjacent (East/West) -> Opposite (South)
         // Distance calculation needs to reflect this.
         val fallbackOrder = listOf(SectorName.EAST, SectorName.WEST, SectorName.SOUTH)
-        
+
         for (sectorName in fallbackOrder) {
             val sector = state.sectors[sectorName] ?: continue
             val blockC = sector.blocks[BlockName.C]
-            
+
             // Check if Block C is valid
             if (blockC != null && !blockC.isFull && !blockC.isBlocked) {
-                val baseDist = if (sectorName == SectorName.SOUTH) StaduConfig.DISTANCE_OPPOSITE_SECTOR else StaduConfig.DISTANCE_ADJACENT_SECTOR
+                val baseDist =
+                    if (sectorName == SectorName.SOUTH) StaduConfig.DISTANCE_OPPOSITE_SECTOR else StaduConfig.DISTANCE_ADJACENT_SECTOR
                 val totalDist = baseDist + StaduConfig.DISTANCE_INTRA_SECTOR
                 return AssignmentResult.Success(sectorName, BlockName.C, totalDist)
             }
         }
-        
+
         return AssignmentResult.Rejected("Blue shirt rejected: North blocked and no fallback Block C available")
     }
 
     private fun assignStandard(state: StadiumState, gate: String): AssignmentResult {
         val targetSectorName = StaduConfig.getSectorForGate(gate)
-        val targetSector = state.sectors[targetSectorName] 
+        val targetSector = state.sectors[targetSectorName]
             ?: return AssignmentResult.Rejected("Invalid Gate mapping: $gate")
 
         // 1. Try Target Sector
         val bestBlock = findBestBlockInSector(targetSector)
         if (bestBlock != null) {
-             val dist = StaduConfig.DISTANCE_INTRA_SECTOR
-             return AssignmentResult.Success(targetSectorName, bestBlock.name, dist)
+            val dist = StaduConfig.DISTANCE_INTRA_SECTOR
+            return AssignmentResult.Success(targetSectorName, bestBlock.name, dist)
         }
 
         // 2. Saturation: Try Adjacent Sectors
         // "asignar al bloque válido más cercano en un sector adyacente"
         val adjacentNames = StaduConfig.ADJACENT_SECTORS[targetSectorName] ?: emptyList()
-        
+
         // We need to find the best among adjacent.
         // Both adjacent are distance 50 away. So pick the first available?
         // Or check both and pick best block?

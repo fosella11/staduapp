@@ -1,8 +1,6 @@
 package com.domingame.staduapp.feature.stadium.presentation.model
 
 import com.domingame.staduapp.feature.stadium.domain.model.ConnectionState
-import com.domingame.staduapp.feature.stadium.domain.model.EntryEvent
-import com.domingame.staduapp.feature.stadium.domain.model.GlobalMetrics
 import com.domingame.staduapp.feature.stadium.domain.model.ProcessedEvent
 import com.domingame.staduapp.feature.stadium.domain.model.StadiumState
 

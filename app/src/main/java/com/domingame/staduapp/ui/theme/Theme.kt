@@ -27,7 +27,7 @@ private val LightColorScheme = lightColorScheme(
     secondary = PurpleGrey40,
     tertiary = Pink40,
     error = BlockedRed,
-    background = NormalGrey, 
+    background = NormalGrey,
     surface = androidx.compose.ui.graphics.Color.White
 )
 
@@ -43,6 +43,7 @@ fun StaduAppTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
+
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }

@@ -1,15 +1,25 @@
 package com.domingame.staduapp.feature.stadium.presentation.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,8 +33,8 @@ import com.domingame.staduapp.feature.stadium.domain.model.AssignmentResult
 import com.domingame.staduapp.feature.stadium.domain.model.ProcessedEvent
 import com.domingame.staduapp.ui.theme.BlockedRed
 import com.domingame.staduapp.ui.theme.OccupiedGreen
-import com.domingame.staduapp.ui.theme.WarningOrange
 import com.domingame.staduapp.ui.theme.PurpleMain
+import com.domingame.staduapp.ui.theme.WarningOrange
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -33,7 +43,7 @@ import java.util.Locale
 fun LogEventItem(processed: ProcessedEvent) {
     val result = processed.result
     val time = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(processed.timestamp))
-    
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -58,15 +68,15 @@ fun LogEventItem(processed: ProcessedEvent) {
                     tint = if (result is AssignmentResult.Blocked) BlockedRed else OccupiedGreen,
                     modifier = Modifier.size(20.dp)
                 )
-                
+
                 Spacer(modifier = Modifier.width(8.dp))
-                
+
                 Text(
                     text = "event-${processed.id.take(4)}",
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier.weight(1f)
                 )
-                
+
                 // Gate Capsule
                 Box(
                     modifier = Modifier
@@ -81,39 +91,39 @@ fun LogEventItem(processed: ProcessedEvent) {
                         color = Color.Gray
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.width(12.dp))
-                
+
                 Text(
                     text = time,
                     style = MaterialTheme.typography.labelSmall,
                     color = Color.Gray
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             // Middle Row: Ticket Color Chip and Status Text
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TicketColorChip(processed.originalEvent.shirtColor)
-                
+
                 Spacer(modifier = Modifier.width(8.dp))
-                
+
                 Text(
                     text = when (result) {
                         is AssignmentResult.Success -> "Asignado"
                         is AssignmentResult.Blocked -> "Bloqueado"
-                        else -> "Rechazado"
+                        else -> "Bloqueado"
                     },
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
             }
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             // Bottom Row: Details or Warning
             when (result) {
                 is AssignmentResult.Success -> {
@@ -125,6 +135,7 @@ fun LogEventItem(processed: ProcessedEvent) {
                         overflow = TextOverflow.Ellipsis
                     )
                 }
+
                 is AssignmentResult.Blocked -> {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
@@ -141,6 +152,7 @@ fun LogEventItem(processed: ProcessedEvent) {
                         )
                     }
                 }
+
                 else -> {}
             }
         }
@@ -156,7 +168,7 @@ fun TicketColorChip(colorLabel: String) {
         "YELLOW" -> WarningOrange
         else -> Color.Gray
     }
-    
+
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp))

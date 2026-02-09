@@ -12,7 +12,7 @@ object StaduConfig {
     const val DISTANCE_INTRA_SECTOR = 10
     const val DISTANCE_ADJACENT_SECTOR = 50
     const val DISTANCE_OPPOSITE_SECTOR = 100
-    
+
     // Map Gate String to Sector
     fun getSectorForGate(gate: String): SectorName {
         val g = gate.uppercase().trim()
@@ -30,7 +30,7 @@ object StaduConfig {
 
     val ADJACENT_SECTORS = mapOf(
         SectorName.NORTH to listOf(SectorName.EAST, SectorName.WEST),
-        SectorName.SOUTH to listOf(SectorName.EAST, SectorName.WEST), 
+        SectorName.SOUTH to listOf(SectorName.EAST, SectorName.WEST),
         SectorName.EAST to listOf(SectorName.NORTH, SectorName.SOUTH),
         SectorName.WEST to listOf(SectorName.NORTH, SectorName.SOUTH)
     )

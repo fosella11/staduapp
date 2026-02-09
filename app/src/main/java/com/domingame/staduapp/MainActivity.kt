@@ -16,9 +16,10 @@ import com.domingame.staduapp.ui.theme.StaduAppTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        val viewModel = ViewModelProvider(this, ServiceLocator.mainViewModelFactory)[MainViewModel::class.java]
-        
+
+        val viewModel =
+            ViewModelProvider(this, ServiceLocator.mainViewModelFactory)[MainViewModel::class.java]
+
         setContent {
             StaduAppTheme {
                 Surface(
