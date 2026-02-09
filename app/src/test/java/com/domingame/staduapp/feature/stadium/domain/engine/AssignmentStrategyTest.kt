@@ -1,7 +1,7 @@
-package com.domingame.staduapp.domain.engine
+package com.domingame.staduapp.feature.stadium.domain.engine
 
-import com.domingame.staduapp.domain.model.*
-import com.domingame.staduapp.domain.StaduConfig
+import com.domingame.staduapp.feature.stadium.domain.model.*
+import com.domingame.staduapp.feature.stadium.domain.StaduConfig
 import org.junit.Assert.*
 import org.junit.Test 
 
