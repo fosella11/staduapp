@@ -12,7 +12,10 @@ import java.io.IOException
 
 class StadiumRepositoryImpl(
     private val wsManager: WebSocketManager,
-    private val json: Json = Json { ignoreUnknownKeys = true, isLenient = true}
+    private val json: Json = Json { 
+        ignoreUnknownKeys = true 
+        isLenient = true
+    }
 ) : StadiumRepository {
 
     private val _connectionState = MutableStateFlow(ConnectionState.DISCONNECTED)

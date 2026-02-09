@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import com.domingame.staduapp.ui.MainViewModel
 import com.domingame.staduapp.ui.screens.MainScreen
@@ -21,7 +22,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             StaduAppTheme {
                 Surface(
-                    modifier = androidx.compose.foundation.layout.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     MainScreen(viewModel)

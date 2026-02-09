@@ -14,7 +14,7 @@ class StaduApp : Application() {
     
     // Default URL - can be overridden by user or build config
     // Requirement: "Cómo configurar URL (buildConfig / settings)" -> README will explain
-    private val wsUrl = "ws://10.0.2.2:8080/events" // Android Emulator localhost
+    private val wsUrl = "ws://192.168.0.170:8765" // Android Emulator localhost
     
     private val wsRequest by lazy { 
         Request.Builder().url(wsUrl).build() 

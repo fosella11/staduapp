@@ -42,6 +42,11 @@ data class GlobalMetrics(
     val averageDistanceGlobal: Float = 0f
 )
 
+data class StadiumState(
+    val sectors: Map<SectorName, SectorState>,
+    val metrics: GlobalMetrics
+)
+
 sealed interface AssignmentResult {
     data class Success(val sector: SectorName, val block: BlockName, val distance: Int) : AssignmentResult
     data class Rejected(val reason: String) : AssignmentResult // Capacity exceeded

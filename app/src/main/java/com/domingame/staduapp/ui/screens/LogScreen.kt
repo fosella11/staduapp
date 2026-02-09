@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Block
-import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -49,9 +49,9 @@ fun LogScreen(viewModel: MainViewModel) {
 fun LogEventItem(processed: ProcessedEvent) {
     val result = processed.result
     val (icon, color, statusText) = when (result) {
-        is AssignmentResult.Success -> Triple(Icons.Default.CheckCircle, OccupiedGreen, "Assigned: ${result.sector.name}-${result.block} (+${result.distance}m)")
-        is AssignmentResult.Rejected -> Triple(Icons.Default.Cancel, BlockedRed, "Refused: ${result.reason}")
-        is AssignmentResult.Blocked -> Triple(Icons.Default.Block, Color.Black, "Blocked: ${result.reason}")
+        is AssignmentResult.Success -> Triple(Icons.Filled.CheckCircle, OccupiedGreen, "Assigned: ${result.sector.name}-${result.block} (+${result.distance}m)")
+        is AssignmentResult.Rejected -> Triple(Icons.Filled.Close, BlockedRed, "Refused: ${result.reason}")
+        is AssignmentResult.Blocked -> Triple(Icons.Filled.Lock, Color.Black, "Blocked: ${result.reason}")
     }
 
     Card(
